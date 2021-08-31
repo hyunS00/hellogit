@@ -6,11 +6,11 @@
 </head>
 
 <body>
-<form id="start-screen">
-  <input id="name-input" placeholder="주인공 이름을 입력하세요!" />
+<form id="start-screen" autocomplete="off">
+  <input id="name-input" placeholder="주인공 이름을 입력하세요!"/>
   <button id="start">시작</button>
 </form>
-<div id="screen">
+<div id="screen" autocomplete="off">
   <div id="hero-stat">
     <span id="hero-name"></span>
     <span id="hero-level"></span>
@@ -18,18 +18,18 @@
     <span id="hero-xp"></span>
     <span id="hero-att"></span>
   </div>
-  <form id="game-menu" style="display: none;">
+  <form id="game-menu" style="display: none;" autocomplete="off">
     <div id="menu-1">1.모험</div>
     <div id="menu-2">2.휴식</div>
     <div id="menu-3">3.종료</div>
-    <input id="menu-input" />
+    <input id="menu-input" placeholder="번호를 입력하세요" />
     <button id="menu-button">입력</button>
   </form>
-  <form id="battle-menu" style="display: none;">
+  <form id="battle-menu" style="display: none;" autocomplete="off">
     <div id="battle-1">1.공격</div>
     <div id="battle-2">2.회복</div>
     <div id="battle-3">3.도망</div>
-    <input id="battle-input" />
+    <input id="battle-input" placeholder="다음 행동을 선택하세요" />
     <button id="battle-button">입력</button>
   </form>
   <div id="message"></div>
@@ -52,9 +52,11 @@
   const $monsterHp = document.querySelector('#monster-hp');
   const $monsterAtt = document.querySelector('#monster-att');
   const $message = document.querySelector('#message');
+  const $nameInput = document.querySelector('#name-input');
+  const $menuInput = document.querySelector('#menu-input');
+  const $battleInput = document.querySelector('#battle-input');
 
-
-
+  $nameInput.focus()
   class Game{
     constructor(name){
       this.monster = null;
@@ -77,7 +79,6 @@
     }
     
     changeScreen(screen){
-
       if(screen === 'start'){
         $startScreen.style.display = 'block';
         $gameMenu.style.display = 'none';
@@ -94,9 +95,12 @@
     }
     onGameMenuput = (event) => {
       event.preventDefault();
+      $menuInput.focus();
       const input = event.target['menu-input'].value;
       if(input === '1'){
         this.changeScreen('battle');
+        $menuInput.blur();
+        $battleInput.focus();
         const randomIndex = Math.floor(Math.random() * this.monsterList.length);
         const randomMonster = this.monsterList[randomIndex];
         this.monster = new Monster(
@@ -120,6 +124,7 @@
     }
     onBattleMenuput = (evnet) => {
       event.preventDefault();
+      $battleInput.focus();
       const input = event.target['battle-input'].value;
       const {hero,monster} = this;
       if(input === '1'){
@@ -133,6 +138,8 @@
           hero.getXp(monster.xp);
           this.monster = null;
           this.changeScreen('game');
+          $battleInput.blur();
+          $menuInput.focus();
         } else{ //게임 진행
           this.showMessage(`${hero.att}의 공격을 주고 ${monster.att}만큼 데미지를 입었다`);
         }
@@ -145,6 +152,7 @@
         this.updateHeroStat();
         if (hero.hp <=0){
           this.showMessage(`${hero.lev}레벨에서 게임오버`);
+          $battleInput.blur();
           this.quit();
         }
       } else if(input === '3'){
@@ -153,6 +161,8 @@
         this.showMessage(`무사히 도망쳤다`);
         this.updateHeroStat();
         this.updateMonsterStat();
+        $battleInput.blur();
+        $menuInput.focus();
       }
     }
     updateHeroStat(){
@@ -196,6 +206,7 @@
         $battleMenu.removeEventListener('submit', this.onBattleMenuInput);
         this.changeScreen('start');
         game = null;
+        $nameInput.focus();
       }
   }
 
@@ -248,6 +259,8 @@
     event.preventDefault();
     const name = event.target['name-input'].value;
     game = new Game(name);
+    $nameInput.blur();
+    $menuInput.focus();
   });
 
 </script>
